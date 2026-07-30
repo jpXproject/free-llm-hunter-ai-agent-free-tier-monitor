@@ -48,7 +48,17 @@ python serve.py
 # Click "Scrape Now" to scan all endpoints
 ```
 
-### Option 2: Python CLI
+### Option 2: llm-hunter CLI (Terminal Agent)
+
+```bash
+# List all providers with live status
+python llm.py list
+
+# Chat with a free model (coming soon)
+python llm.py chat --model gemini-2.5-flash
+```
+
+### Option 3: Python Scraper CLI
 
 ```bash
 # Install dependency
@@ -61,7 +71,7 @@ python scraper.py
 python scraper.py > results.json
 ```
 
-### Option 3: Programmatic Usage
+### Option 4: Programmatic Usage
 
 ```python
 from scraper import run_scrape
@@ -134,6 +144,7 @@ agg demo.cast demo.gif
 ```
 free-llm-hunter/
 ├── agents.json          # 📋 Single source of truth (19 providers)
+├── llm.py               # 🤖 CLI agent (llm-hunter)
 ├── dashboard.html       # 🌐 Web dashboard (loads agents.json)
 ├── scraper.py           # 🐍 Async Python scraper
 ├── serve.py             # 🖥️ Local HTTP server (one-liner)
@@ -145,6 +156,7 @@ free-llm-hunter/
 ```
 agents.json ──→ scraper.py   (json.load at import)
              ──→ dashboard.html (fetch via serve.py)
+             ──→ llm.py       (provider configs + live status)
 ```
 
 **Adding a new provider?** Just edit `agents.json` — both scraper and dashboard pick up changes automatically.
