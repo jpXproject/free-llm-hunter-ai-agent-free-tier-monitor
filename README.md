@@ -14,10 +14,10 @@
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Providers](#-monitored-providers) • [API](#-python-api) • [Architecture](#-architecture)
 
+
+![Dashboard Screenshot](header.png)
+
 ### 📸 Dashboard Preview
-
-![Dashboard Screenshot](screenshot.png)
-
 </div>
 
 ---
