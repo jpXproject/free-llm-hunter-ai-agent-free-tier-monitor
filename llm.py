@@ -12,6 +12,7 @@ Usage:
 import sys
 import os
 import json
+import time
 import argparse
 import urllib.request
 import urllib.error
@@ -72,10 +73,6 @@ def load_agents() -> list[dict]:
 AGENTS = load_agents()
 
 # ── Endpoint Ping (reused from scraper) ─────────────────────────────
-import time
-import urllib.request
-import urllib.error
-
 def ping_endpoint(agent: dict) -> tuple[str, int]:
     """Ping an endpoint and return (status, latency_ms)."""
     url = agent["endpoint"]
@@ -270,12 +267,8 @@ def cmd_chat(args):
     if not api_key:
         print(f"{RED}API key not set for {p['name']}{RESET}")
         print(f"Set {p['api_key_env']} environment variable.")
-        print(f"\nGet a free key at:")
-        if provider == "google": print(f"  https://aistudio.google.com")
-        elif provider == "groq": print(f"  https://console.groq.com")
-        elif provider == "cerebras": print(f"  https://cloud.cerebras.ai")
-        elif provider == "openrouter": print(f"  https://openrouter.ai")
-        elif provider == "fireworks": print(f"  https://fireworks.ai")
+        if p.get('signup_url'):
+            print(f"\nGet a free key at: {p['signup_url']}")
         sys.exit(1)
 
     print(f"\n{CYAN}🤖 Free LLM Hunter{RESET} — {BOLD}{p['name']}{RESET}")
