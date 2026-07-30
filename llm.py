@@ -366,6 +366,9 @@ def _detect_provider(model: str) -> str:
 # ── Main ──────────────────────────────────────────────────────────────
 
 def main():
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
     parser = argparse.ArgumentParser(
         prog="llm-hunter",
         description="Free LLM Hunter — Chat with free AI providers from your terminal",
