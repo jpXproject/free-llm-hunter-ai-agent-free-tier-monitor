@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/License-MIT-00C853?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Active-22c55e?style=for-the-badge)]()
 
-*Track 19+ AI providers, compare free tier limits, and monitor endpoint availability — all in one place.*
+*Track and compare ALL LLM providers across every AI platform — free tier, paid, self-hosted. Monitor endpoint availability, compare rate limits, and chat from your terminal.*
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Providers](#-monitored-providers) • [API](#-python-api) • [Architecture](#-architecture)
 
@@ -143,7 +143,7 @@ agg demo.cast demo.gif
 
 ```
 free-llm-hunter/
-├── agents.json          # 📋 Single source of truth (19 providers)
+├── agents.json          # 📋 Single source of truth (unlimited providers)
 ├── llm.py               # 🤖 CLI agent (llm-hunter)
 ├── dashboard.html       # 🌐 Web dashboard (loads agents.json)
 ├── scraper.py           # 🐍 Async Python scraper
