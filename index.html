@@ -243,19 +243,48 @@ code {
 
 /* ── HERO SECTION ──────────────────────────────────────────────── */
 .hero {
-  padding: 1.5rem 0 2rem;
+  padding: 2rem 1.5rem;
   border-bottom: 1px solid var(--muted);
   margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('header.png') center center / cover no-repeat;
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .ascii-art {
-  font-size: 0.55rem;
-  line-height: 1.1;
+  font-size: 0.95rem;
+  line-height: 1.15;
   color: var(--primary);
   text-shadow: var(--glow);
   white-space: pre;
   overflow-x: auto;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  user-select: none;
+}
+
+.ascii-art-small {
+  font-size: 0.65rem;
+  line-height: 1.1;
+  color: var(--muted);
+  white-space: pre;
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
   user-select: none;
 }
 
@@ -1109,7 +1138,7 @@ tbody tr {
     <div class="ascii-art">   ██╔══██║██║   ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗</div>
     <div class="ascii-art">   ██║  ██║╚██████╔╝██║ ╚████║   ██║   ███████╗██║  ██║</div>
     <div class="ascii-art">   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝</div>
-    <div class="ascii-art" style="color:var(--muted);font-size:0.45rem">
+    <div class="ascii-art-small">
                  _      _                       _                          _
        /\/\     | |    | |                     | |                        | |
       /    \  _ | |    | |_   _ __   _ __ ___  | |__    ___  _ __   _   _ | |_
@@ -1124,6 +1153,7 @@ tbody tr {
     <div class="hero-sub">
       <span>&gt;</span> TRACKING <span id="h-total">23</span> PROVIDERS &mdash; <span id="h-free-count">13</span> FREE / <span id="h-paid-count">6</span> PAID &mdash; <span>0</span> NO CC REQUIRED
     </div>
+
     <div class="hero-stats-row">
       <div class="hero-stat">
         <span class="pulse-dot green pulse" style="width:6px;height:6px"></span>
