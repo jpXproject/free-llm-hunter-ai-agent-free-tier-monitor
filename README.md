@@ -2,7 +2,7 @@
 
 # 🤖 Free LLM Hunter
 
-### AI Agent Free Tier Monitor — 2026
+### All-in-One LLM Provider Monitor — 2026
 
 **Real-time monitoring dashboard for free & paid AI API providers.**
 
@@ -172,7 +172,7 @@ Runs a full scrape of all providers. Returns:
 ```python
 {
     "scraped_at": "2026-07-30T12:00:00",
-    "total": 19,
+    "total": 23,
     "free_count": 13,
     "paid_count": 6,
     "agents": [
