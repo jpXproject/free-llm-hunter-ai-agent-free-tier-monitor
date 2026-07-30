@@ -7,16 +7,28 @@ Usage:
     python llm.py chat --model gemini-2.5-flash
     python llm.py list
     python llm.py run --model groq/llama-3.3-70b
+    python llm.py watch                     # Live monitoring dashboard
+    python llm.py watch --interval 10       # Refresh every 10 seconds
+    python llm.py watch --threshold 3000    # Red threshold at 3000ms
 """
 
 import sys
 import os
 import json
 import time
+import signal
 import argparse
 import urllib.request
 import urllib.error
 from typing import Optional
+from datetime import datetime
+
+# Try to import colorama for Windows ANSI support
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    pass
 
 # ── Load Provider Configs from agents.json ──────────────────────────
 
@@ -108,6 +120,17 @@ RED = "\033[1;31m"
 DIM = "\033[2m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
+BGREEN = "\033[42m\033[30m"  # Green background, black text
+BRED = "\033[41m\033[30m"    # Red background, black text
+BYELLOW = "\033[43m\033[30m" # Yellow background, black text
+
+# ── Terminal Width ────────────────────────────────────────────────────
+def term_width() -> int:
+    """Get terminal width, fallback to 80."""
+    try:
+        return os.get_terminal_size().columns
+    except (ValueError, OSError):
+        return 80
 
 # ── Chat Completions (OpenAI-compatible) ─────────────────────────────
 
@@ -367,6 +390,124 @@ def _detect_provider(model: str) -> str:
     return "groq"
 
 
+# ── Watch / Live Monitoring ────────────────────────────────────────────
+
+def cmd_watch(args):
+    """Live monitoring dashboard — refreshes every N seconds."""
+    interval = args.interval
+    threshold = args.threshold
+    watch_running = True
+
+    def handle_sigint(sig, frame):
+        nonlocal watch_running
+        watch_running = False
+
+    signal.signal(signal.SIGINT, handle_sigint)
+
+    print(f"{BOLD}{GREEN}╔══════════════════════════════════════════════════════════════╗{RESET}")
+    print(f"{BOLD}{GREEN}║  FREE LLM HUNTER — LIVE MONITOR                            ║{RESET}")
+    print(f"{BOLD}{GREEN}║  Interval: {interval}s  |  Red threshold: >{threshold}ms         ║{RESET}")
+    print(f"{BOLD}{GREEN}║  Press Ctrl+C to stop                                       ║{RESET}")
+    print(f"{BOLD}{GREEN}╚══════════════════════════════════════════════════════════════╝{RESET}")
+    time.sleep(1.5)
+
+    while watch_running:
+        # Clear screen
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+        if not watch_running:
+            break
+
+        # Header
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"{BOLD}{GREEN}╔══ FREE LLM HUNTER — LIVE MONITOR {'═' * 20}╗{RESET}")
+        print(f"{BOLD}{GREEN}║{RESET}  {CYAN}Scanning {len(AGENTS)} providers...{RESET}  {DIM}{now}{RESET}  ")
+        print(f"{BOLD}{GREEN}╠══ INTERVAL: {interval}s  |  RED > {threshold}ms  |  PRESS Ctrl+C TO STOP{RESET}")
+        print(f"{BOLD}{GREEN}╚{'═' * 56}╝{RESET}")
+        print()
+
+        # ── Column Headers ──
+        print(f"  {BOLD}{'STATUS':<9} {'LATENCY':<10} {'PROVIDER':<28} {'MODEL'}{RESET}")
+        print(f"  {DIM}{'─' * 9} {'─' * 10} {'─' * 28} {'─' * 30}{RESET}")
+
+        # Ping all endpoints
+        free_ok = 0
+        flag_count = 0
+        down_count = 0
+        total_ms = 0
+        checked = 0
+
+        for agent in AGENTS:
+            if not watch_running:
+                break
+
+            status, ms = ping_endpoint(agent)
+            total_ms += ms
+            checked += 1
+
+            # Determine color based on latency + status
+            is_paid = agent['type'] == 'paid'
+
+            if is_paid:
+                status_icon = f"{RED}●{RESET}"
+                status_label = f"{RED}PAID   {RESET}"
+                lat_str = f"{DIM}── ms   {RESET}"
+                down_count += 1
+            elif status == 'unavailable':
+                status_icon = f"{RED}●{RESET}"
+                status_label = f"{RED}DOWN   {RESET}"
+                lat_str = f"{RED}{ms:<5} ms{RESET}"
+                down_count += 1
+            elif status == 'available' and ms < 600:
+                status_icon = f"{GREEN}●{RESET}"
+                status_label = f"{GREEN}OK     {RESET}"
+                lat_str = f"{GREEN}{ms:<5} ms{RESET}"
+                free_ok += 1
+            elif status == 'available' and ms >= 600:
+                status_icon = f"{YELLOW}●{RESET}"
+                status_label = f"{YELLOW}SLOW   {RESET}"
+                lat_str = f"{YELLOW}{ms:<5} ms{RESET}"
+                flag_count += 1
+            elif status == 'flag':
+                status_icon = f"{YELLOW}●{RESET}"
+                status_label = f"{YELLOW}FLAG   {RESET}"
+                lat_str = f"{YELLOW}{ms:<5} ms{RESET}"
+                flag_count += 1
+            else:
+                status_icon = f"{RED}●{RESET}"
+                status_label = f"{RED}ERR    {RESET}"
+                lat_str = f"{RED}{ms:<5} ms{RESET}"
+                down_count += 1
+
+            # Apply threshold for red highlight
+            if ms > threshold and not is_paid:
+                lat_str = f"{BRED} {ms}ms {RESET}"
+                status_label = f"{RED}CRIT   {RESET}"
+
+            # Provider name (truncate to fit)
+            org_str = agent['org'][:26]
+            model_preview = agent['models'][0][:28] if agent['models'] else '—'
+
+            print(f"  {status_icon} {status_label} {lat_str} {BOLD}{org_str:<28}{RESET} {DIM}{model_preview}{RESET}")
+
+        # ── Summary ──
+        print()
+        avg_ms = total_ms // max(checked, 1)
+        print(f"  {DIM}{'═' * 56}{RESET}")
+        print(f"  {GREEN}[OK] {free_ok}{RESET}  {YELLOW}[!] {flag_count}{RESET}  {RED}[ERR] {down_count}{RESET}  "
+              f"  {DIM}Avg: {avg_ms}ms  |  Scanned: {checked}/{len(AGENTS)}{RESET}")
+        print(f"  {DIM}Last update: {now}{RESET}")
+        print(f"  {DIM}Press Ctrl+C to stop{RESET}")
+
+        # Sleep for interval (in short chunks so Ctrl+C is responsive)
+        for _ in range(interval * 2):
+            if not watch_running:
+                break
+            time.sleep(0.5)
+
+    print(f"\n{GREEN}Monitoring stopped.{RESET}")
+
+
 # ── Main ──────────────────────────────────────────────────────────────
 
 def main():
@@ -401,6 +542,11 @@ Examples:
     run_p.add_argument("-m", "--model", required=True, help="Model to use")
     run_p.add_argument("prompt", nargs="?", help="Prompt (or read from stdin)")
 
+    # watch
+    watch_p = sub.add_parser("watch", aliases=["w"], help="Live monitoring dashboard (refreshes every N seconds)")
+    watch_p.add_argument("--interval", type=int, default=5, help="Refresh interval in seconds (default: 5)")
+    watch_p.add_argument("--threshold", type=int, default=2000, help="Red latency threshold in ms (default: 2000)")
+
     args = parser.parse_args()
 
     if args.command in ("list", "ls"):
@@ -409,6 +555,8 @@ Examples:
         cmd_chat(args)
     elif args.command in ("run", "r"):
         cmd_run(args)
+    elif args.command in ("watch", "w"):
+        cmd_watch(args)
     else:
         parser.print_help()
 
