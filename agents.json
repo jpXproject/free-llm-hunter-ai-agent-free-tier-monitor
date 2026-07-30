@@ -5,10 +5,14 @@
     "org": "Google AI Studio",
     "type": "free",
     "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
-    "models": ["gemini-2.5-flash"],
+    "models": [
+      "gemini-2.5-flash"
+    ],
     "limits": {
-      "rpm": 15, "rpd": 1500,
-      "tpm": 250000, "tpd": null,
+      "rpm": 15,
+      "rpd": 1500,
+      "tpm": 250000,
+      "tpd": null,
       "context_k": 1000
     },
     "notes": "Paling generus. Tidak perlu CC. Data mungkin dipakai training.",
@@ -21,10 +25,14 @@
     "org": "Google AI Studio",
     "type": "free",
     "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
-    "models": ["gemini-2.5-pro"],
+    "models": [
+      "gemini-2.5-pro"
+    ],
     "limits": {
-      "rpm": 5, "rpd": 100,
-      "tpm": 250000, "tpd": null,
+      "rpm": 5,
+      "rpd": 100,
+      "tpm": 250000,
+      "tpd": null,
       "context_k": 1000
     },
     "notes": "Model paling canggih Google. Limit RPD ketat (100/hari).",
@@ -37,10 +45,14 @@
     "org": "Groq",
     "type": "free",
     "endpoint": "https://api.groq.com/openai/v1/models",
-    "models": ["llama-3.3-70b-versatile"],
+    "models": [
+      "llama-3.3-70b-versatile"
+    ],
     "limits": {
-      "rpm": 30, "rpd": 14400,
-      "tpm": 6000, "tpd": null,
+      "rpm": 30,
+      "rpd": 14400,
+      "tpm": 6000,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Ultra-cepat (500+ TPS). Tidak perlu CC. Tercepat di kelasnya.",
@@ -53,10 +65,14 @@
     "org": "Groq",
     "type": "free",
     "endpoint": "https://api.groq.com/openai/v1/models",
-    "models": ["llama-3.1-8b-instant"],
+    "models": [
+      "llama-3.1-8b-instant"
+    ],
     "limits": {
-      "rpm": 30, "rpd": 14400,
-      "tpm": 20000, "tpd": null,
+      "rpm": 30,
+      "rpd": 14400,
+      "tpm": 20000,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "TPM lebih tinggi (20K). Cocok untuk volume tinggi.",
@@ -69,10 +85,14 @@
     "org": "Groq",
     "type": "free",
     "endpoint": "https://api.groq.com/openai/v1/models",
-    "models": ["meta-llama/llama-4-scout-17b-16e-instruct"],
+    "models": [
+      "meta-llama/llama-4-scout-17b-16e-instruct"
+    ],
     "limits": {
-      "rpm": 30, "rpd": 1000,
-      "tpm": 6000, "tpd": null,
+      "rpm": 30,
+      "rpd": 1000,
+      "tpm": 6000,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Llama 4 terbaru. RPD lebih ketat (1K/hari).",
@@ -85,10 +105,14 @@
     "org": "Cerebras",
     "type": "free",
     "endpoint": "https://api.cerebras.ai/v1/models",
-    "models": ["llama-3.3-70b"],
+    "models": [
+      "llama-3.3-70b"
+    ],
     "limits": {
-      "rpm": 30, "rpd": null,
-      "tpm": 60000, "tpd": 1000000,
+      "rpm": 30,
+      "rpd": null,
+      "tpm": 60000,
+      "tpd": 1000000,
       "context_k": 128
     },
     "notes": "1 juta token/hari! TPM 60K tertinggi. Chip WSE khusus AI.",
@@ -107,8 +131,10 @@
       "google/gemini-flash-1.5:free"
     ],
     "limits": {
-      "rpm": 20, "rpd": 50,
-      "tpm": null, "tpd": null,
+      "rpm": 20,
+      "rpd": 50,
+      "tpm": null,
+      "tpd": null,
       "context_k": 262
     },
     "notes": "28+ model gratis termasuk DeepSeek R1, Qwen3 480B. 1 API key.",
@@ -121,10 +147,15 @@
     "org": "Mistral AI",
     "type": "free",
     "endpoint": "https://api.mistral.ai/v1/models",
-    "models": ["mistral-small-latest", "open-mistral-nemo"],
+    "models": [
+      "mistral-small-latest",
+      "open-mistral-nemo"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": 1000000000,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": 1000000000,
       "context_k": 128
     },
     "notes": "~1 miliar token/bulan untuk open-weight models. Verifikasi HP saja.",
@@ -137,10 +168,14 @@
     "org": "Cohere",
     "type": "free",
     "endpoint": "https://api.cohere.com/v1/check-api-key",
-    "models": ["command-r-plus"],
+    "models": [
+      "command-r-plus"
+    ],
     "limits": {
-      "rpm": 5, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": 5,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Gratis untuk development. Terbaik untuk RAG + reranking pipeline.",
@@ -158,8 +193,10 @@
       "@cf/mistral/mistral-7b-instruct-v0.1"
     ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": 10000,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": 10000,
       "context_k": 128
     },
     "notes": "10K neurons/hari gratis. Edge inference di 300+ lokasi global.",
@@ -177,8 +214,10 @@
       "nvidia/nemotron-4-340b-instruct"
     ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "91 model gratis. Credit terbatas (expires). Cocok untuk testing.",
@@ -196,8 +235,10 @@
       "mistralai/Mistral-7B-Instruct-v0.3"
     ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Rate limited untuk user tanpa PRO. Akses ke ribuan model Hub.",
@@ -210,10 +251,15 @@
     "org": "OpenAI",
     "type": "paid",
     "endpoint": "https://api.openai.com/v1/models",
-    "models": ["gpt-4o", "gpt-4o-mini"],
+    "models": [
+      "gpt-4o",
+      "gpt-4o-mini"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Pay-as-you-go. GPT-4o: $2.5/$10 per 1M tok. Free credit tidak reliable.",
@@ -226,10 +272,15 @@
     "org": "Anthropic",
     "type": "paid",
     "endpoint": "https://api.anthropic.com/v1/models",
-    "models": ["claude-sonnet-4-6", "claude-haiku-4-5"],
+    "models": [
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 200
     },
     "notes": "Berbayar. Sonnet: $3/$15 per 1M tok. Open source maintainer bisa gratis.",
@@ -242,10 +293,14 @@
     "org": "xAI",
     "type": "paid",
     "endpoint": "https://api.x.ai/v1/models",
-    "models": ["grok-2-latest"],
+    "models": [
+      "grok-2-latest"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 128
     },
     "notes": "Berbayar. $2/$10 per 1M tok. Trial credits terbatas di awal.",
@@ -258,10 +313,15 @@
     "org": "DeepSeek",
     "type": "paid",
     "endpoint": "https://api.deepseek.com/models",
-    "models": ["deepseek-chat", "deepseek-reasoner"],
+    "models": [
+      "deepseek-chat",
+      "deepseek-reasoner"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 64
     },
     "notes": "Berbayar. Sangat murah: $0.27/$1.1 per 1M tok. Model open-weight.",
@@ -274,10 +334,15 @@
     "org": "Fireworks AI",
     "type": "free",
     "endpoint": "https://api.fireworks.ai/v1/models",
-    "models": ["accounts/fireworks/models/llama-v3p3-70b-instruct", "accounts/fireworks/models/deepseek-r1"],
+    "models": [
+      "accounts/fireworks/models/llama-v3p3-70b-instruct",
+      "accounts/fireworks/models/deepseek-r1"
+    ],
     "limits": {
-      "rpm": 10, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": 10,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 65
     },
     "notes": "$1 starter credit gratis. 10 RPM tanpa CC. Full model catalog (Llama, DeepSeek, Qwen).",
@@ -290,10 +355,15 @@
     "org": "Together AI",
     "type": "paid",
     "endpoint": "https://api.together.ai/v1/models",
-    "models": ["meta-llama/Meta-Llama-3.3-70B-Instruct-Turbo", "deepseek-ai/DeepSeek-R1"],
+    "models": [
+      "meta-llama/Meta-Llama-3.3-70B-Instruct-Turbo",
+      "deepseek-ai/DeepSeek-R1"
+    ],
     "limits": {
-      "rpm": null, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 131
     },
     "notes": "Berbayar. Min $5 prepaid. 200+ model open-source. Dynamic rate limits.",
@@ -306,14 +376,103 @@
     "org": "Perplexity AI",
     "type": "paid",
     "endpoint": "https://api.perplexity.ai/v1/models",
-    "models": ["sonar", "sonar-pro", "sonar-reasoning-pro"],
+    "models": [
+      "sonar",
+      "sonar-pro",
+      "sonar-reasoning-pro"
+    ],
     "limits": {
-      "rpm": 5, "rpd": null,
-      "tpm": null, "tpd": null,
+      "rpm": 5,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
       "context_k": 127
     },
     "notes": "Berbayar. 5 RPM di Tier 0. Web-grounded LLM — jawaban selalu up-to-date.",
     "signup_url": "https://www.perplexity.ai/api-platform",
+    "requires_card": true
+  },
+  {
+    "id": "sambanova-free",
+    "name": "SambaNova Cloud",
+    "org": "SambaNova",
+    "type": "free",
+    "endpoint": "https://api.sambanova.ai/v1/models",
+    "models": [
+      "Meta-Llama-3.3-70B-Instruct",
+      "DeepSeek-V3-0324"
+    ],
+    "limits": {
+      "rpm": 20,
+      "rpd": null,
+      "tpm": null,
+      "tpd": 20000000,
+      "context_k": 128
+    },
+    "notes": " free credits (3 months). 20M tokens/day. No CC required.",
+    "signup_url": "https://cloud.sambanova.ai",
+    "requires_card": false
+  },
+  {
+    "id": "zhipu-free",
+    "name": "GLM-4 Flash",
+    "org": "Zhipu AI",
+    "type": "free",
+    "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
+    "models": [
+      "glm-4-flash",
+      "glm-4.7-flash"
+    ],
+    "limits": {
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
+      "context_k": 128
+    },
+    "notes": "Free forever for flash models. No CC required.",
+    "signup_url": "https://open.bigmodel.cn",
+    "requires_card": false
+  },
+  {
+    "id": "moonshot-free",
+    "name": "Kimi K2",
+    "org": "Moonshot AI",
+    "type": "paid",
+    "endpoint": "https://api.moonshot.cn/v1/models",
+    "models": [
+      "moonshot-v1-8k",
+      "moonshot-v1-32k"
+    ],
+    "limits": {
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
+      "context_k": 32
+    },
+    "notes": "Pay-as-you-go. 1M context available on premium tier.",
+    "signup_url": "https://platform.moonshot.cn",
+    "requires_card": true
+  },
+  {
+    "id": "stepfun-free",
+    "name": "Step 3.5 Flash",
+    "org": "StepFun",
+    "type": "paid",
+    "endpoint": "https://api.stepfun.com/v1/models",
+    "models": [
+      "step-3.5-flash"
+    ],
+    "limits": {
+      "rpm": null,
+      "rpd": null,
+      "tpm": null,
+      "tpd": null,
+      "context_k": 256
+    },
+    "notes": "256K context. Free credits on signup.",
+    "signup_url": "https://platform.stepfun.com",
     "requires_card": true
   }
 ]

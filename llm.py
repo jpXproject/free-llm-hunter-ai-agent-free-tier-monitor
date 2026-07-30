@@ -36,6 +36,10 @@ _PROVIDER_API = {
     "cohere":      {"base_url": "https://api.cohere.ai/v1", "api_key_env": "COHERE_API_KEY"},
     "nvidia":      {"base_url": "https://integrate.api.nvidia.com/v1", "api_key_env": "NVIDIA_API_KEY"},
     "huggingface": {"base_url": "https://api-inference.huggingface.co/v1", "api_key_env": "HF_API_KEY"},
+    "sambanova":   {"base_url": "https://api.sambanova.ai/v1", "api_key_env": "SAMBANOVA_API_KEY"},
+    "zhipu":       {"base_url": "https://open.bigmodel.cn/api/paas/v4", "api_key_env": "ZHIPU_API_KEY"},
+    "moonshot":    {"base_url": "https://api.moonshot.cn/v1", "api_key_env": "MOONSHOT_API_KEY"},
+    "stepfun":     {"base_url": "https://api.stepfun.com/v1", "api_key_env": "STEPFUN_API_KEY"},
 }
 
 def load_providers() -> dict:
