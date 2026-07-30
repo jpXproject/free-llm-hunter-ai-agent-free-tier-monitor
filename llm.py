@@ -271,7 +271,22 @@ def cmd_chat(args):
             print(f"\nGet a free key at: {p['signup_url']}")
         sys.exit(1)
 
-    print(f"\n{CYAN}🤖 Free LLM Hunter{RESET} — {BOLD}{p['name']}{RESET}")
+    # Ping endpoint to show status before chat
+    provider_agents = [a for a in AGENTS if a["id"].startswith(provider)]
+    if provider_agents:
+        status, ms = ping_endpoint(provider_agents[0])
+        if status == "available":
+            icon = f"{GREEN}●{RESET}"
+            status_txt = f"{GREEN}ONLINE{RESET}"
+        elif status == "flag":
+            icon = f"{YELLOW}●{RESET}"
+            status_txt = f"{YELLOW}SLOW{RESET} ({ms}ms){RESET}"
+        else:
+            icon = f"{RED}●{RESET}"
+            status_txt = f"{RED}OFFLINE{RESET}"
+        print(f"\n{icon} {status_txt}")
+
+    print(f"{CYAN}🤖 Free LLM Hunter{RESET} — {BOLD}{p['name']}{RESET}")
     print(f"{DIM}Model: {model} | Type 'exit' to quit{RESET}\n")
 
     messages = [{"role": "system", "content": args.system or "You are a helpful AI assistant."}]
