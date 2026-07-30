@@ -109,6 +109,8 @@ def run_scrape() -> dict:
     }
 
 if __name__ == "__main__":
+    import sys, io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     print("🔍 Scraping AI agents...")
     data = run_scrape()
     print(json.dumps(data, indent=2, ensure_ascii=False))
