@@ -14,6 +14,10 @@
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Providers](#-monitored-providers) • [API](#-python-api) • [Architecture](#-architecture)
 
+### 📸 Dashboard Preview
+
+![Dashboard Screenshot](screenshot.png)
+
 </div>
 
 ---
@@ -106,6 +110,22 @@ for agent in free_active:
 | **DeepSeek** | DeepSeek-V3 | $0.27 | $1.10 |
 | **Together AI** | 200+ models | Varies | Varies |
 | **Perplexity** | Sonar API | Varies | Varies |
+
+---
+
+## 🎬 Demo
+
+### Terminal Recording
+
+```bash
+# Record with PowerSession
+PowerSession rec demo.cast -c "python scraper.py" --stdin
+
+# Convert to GIF with agg (when available)
+agg demo.cast demo.gif
+```
+
+> 💡 **Try it yourself!** Open terminal, run the commands above, and see the scraper in action.
 
 ---
 
