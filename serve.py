@@ -7,15 +7,17 @@ Usage:
     python serve.py           # default port 8080
     python serve.py 3000      # custom port
 """
+import os
 import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    server = HTTPServer(("127.0.0.1", port), SimpleHTTPRequestHandler)
+    port = int(os.environ.get("PORT", sys.argv[1])) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8080))
+    host = os.environ.get("HOST", "0.0.0.0")
+    server = HTTPServer((host, port), SimpleHTTPRequestHandler)
     print(f"🌐  AI Agent Free Tier Monitor")
-    print(f"    http://localhost:{port}")
+    print(f"    http://{host}:{port}")
     print(f"    Ctrl+C to stop\n")
     try:
         server.serve_forever()

@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FREE LLM HUNTER :: TERMINAL v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   FREE LLM HUNTER — TERMINAL EDITION v2.0
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:        #0a0a0a;
+  --primary:   #33ff00;
+  --secondary: #ffb000;
+  --muted:     #1f521f;
+  --muted-dim: #0f2e0f;
+  --error:     #ff3333;
+  --text:      #c8e6c8;
+  --text-dim:  #33ff00;
+  --amber:     #ffb000;
+  --amber-dim: #5a3e00;
+  --red-dim:   #5a1a1a;
+  --blue-dim:  #1a2a5a;
+  --glow:      0 0 5px rgba(51, 255, 0, 0.5);
+  --glow-amber: 0 0 5px rgba(255, 176, 0, 0.4);
+  --glow-red:   0 0 5px rgba(255, 51, 51, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── CRT SCANLINE OVERLAY ───────────────────────────────────────── */
+.scanlines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+.scanlines::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.15) 100%);
+  pointer-events: none;
+}
+
+/* ── CRT FLICKER ────────────────────────────────────────────────── */
+@keyframes crt-flicker {
+  0%   { opacity: 0.97; }
+  5%   { opacity: 1; }
+  10%  { opacity: 0.95; }
+  15%  { opacity: 1; }
+  20%  { opacity: 0.98; }
+  50%  { opacity: 1; }
+  80%  { opacity: 0.97; }
+  90%  { opacity: 1; }
+  100% { opacity: 0.97; }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  animation: crt-flicker 0.15s infinite;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* ── TYPOGRAPHY ─────────────────────────────────────────────────── */
+::selection {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+a:hover {
+  color: #fff;
+  text-shadow: var(--glow);
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--muted-dim);
+  padding: 1px 6px;
+  border: 1px solid var(--muted);
+  font-size: 0.85em;
+}
+
+/* ── BLINK ANIMATIONS ──────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes blink-block {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes typing-demo {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes progress-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 0; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.glitch:hover {
+  animation: glitch 0.3s ease-in-out;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 1px solid var(--muted);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ── TERMINAL CONTAINER ─────────────────────────────────────────── */
+.terminal {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 2rem;
+}
+
+/* ── STATUS BAR (TOP) ──────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--muted);
+  margin-bottom: 1.5rem;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.prompt-user {
+  color: var(--primary);
+}
+
+.prompt-at {
+  color: var(--text);
+}
+
+.prompt-host {
+  color: var(--secondary);
+}
+
+.prompt-path {
+  color: var(--text-dim);
+}
+
+.prompt-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.2em;
+  background: var(--primary);
+  margin-left: 4px;
+  animation: blink-block 1s step-end infinite;
+  vertical-align: text-bottom;
+  box-shadow: var(--glow);
+}
+
+/* ── HERO SECTION ──────────────────────────────────────────────── */
+.hero {
+  padding: 1.5rem 0 2rem;
+  border-bottom: 1px solid var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.ascii-art {
+  font-size: 0.55rem;
+  line-height: 1.1;
+  color: var(--primary);
+  text-shadow: var(--glow);
+  white-space: pre;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+  user-select: none;
+}
+
+.hero-tagline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.hero-tagline-text {
+  color: var(--text);
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--primary);
+  animation: blink-block 1s step-end infinite;
+  max-width: fit-content;
+}
+
+.hero-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.hero-sub span {
+  color: var(--text-dim);
+}
+
+.hero-stats-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--muted);
+  padding: 0.35rem 0.75rem;
+}
+
+.hero-stat-value {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.hero-stat-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── COMMAND BAR ───────────────────────────────────────────────── */
+.command-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.command-bar-prompt {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ── BUTTONS (TERMINAL STYLE) ──────────────────────────────────── */
+.btn-term {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.btn-term::before {
+  content: '[ ';
+  color: var(--muted);
+}
+.btn-term::after {
+  content: ' ]';
+  color: var(--muted);
+}
+
+.btn-term:hover {
+  background: var(--muted);
+  color: var(--bg);
+  border-color: var(--primary);
+  box-shadow: var(--glow);
+}
+.btn-term:hover::before,
+.btn-term:hover::after {
+  color: var(--muted-dim);
+}
+
+.btn-term.primary {
+  border-color: var(--primary);
+  color: var(--primary);
+  text-shadow: var(--glow);
+}
+.btn-term.primary:hover {
+  background: var(--primary);
+  color: var(--bg);
+  text-shadow: none;
+}
+
+.btn-term.danger {
+  border-color: var(--error);
+  color: var(--error);
+}
+.btn-term.danger:hover {
+  background: var(--error);
+  color: var(--bg);
+}
+
+.btn-term.active {
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
+}
+.btn-term.active::before,
+.btn-term.active::after {
+  color: var(--muted-dim);
+}
+
+.btn-term:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-term:disabled:hover {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--muted);
+  box-shadow: none;
+}
+.btn-term:disabled::before,
+.btn-term:disabled::after {
+  color: var(--muted);
+}
+
+/* ── SELECT (TERMINAL STYLE) ───────────────────────────────────── */
+.sel-term {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--text);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.sel-term:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.sel-term option {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ── SEARCH INPUT ──────────────────────────────────────────────── */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+  border: 1px solid var(--muted);
+  padding: 0.35rem 0.5rem;
+}
+
+.search-prompt {
+  color: var(--primary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  margin-right: 0.4rem;
+}
+
+.search-input {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+}
+.search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.search-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: var(--primary);
+  animation: blink-block 1s step-end infinite;
+  margin-left: 2px;
+  box-shadow: var(--glow);
+}
+
+/* ── FILTER BUTTONS ────────────────────────────────────────────── */
+.filter-group {
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.filter-btn-term {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+  margin: 0;
+}
+
+.filter-btn-term:not(:last-child) {
+  border-right: none;
+}
+
+.filter-btn-term:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.filter-btn-term.active-all {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(51, 255, 0, 0.05);
+}
+
+.filter-btn-term.active-free {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(51, 255, 0, 0.08);
+}
+
+.filter-btn-term.active-flag {
+  color: var(--secondary);
+  border-color: var(--secondary);
+  background: rgba(255, 176, 0, 0.08);
+}
+
+.filter-btn-term.active-paid {
+  color: var(--error);
+  border-color: var(--error);
+  background: rgba(255, 51, 51, 0.08);
+}
+
+/* ── WINDOW/PANE ──────────────────────────────────────────────── */
+.window {
+  border: 1px solid var(--muted);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.window-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--muted-dim);
+  border-bottom: 1px solid var(--muted);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  user-select: none;
+}
+
+.window-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.window-titlebar-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--muted);
+  display: inline-block;
+}
+
+.window-titlebar-dot.green {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: var(--glow);
+}
+
+.window-titlebar-dot.yellow {
+  background: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.window-titlebar-dot.red {
+  background: var(--error);
+  border-color: var(--error);
+}
+
+.window-body {
+  padding: 0.75rem;
+  overflow-x: auto;
+}
+
+/* ── STATS PANES ───────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0;
+  border: 1px solid var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.stat-pane {
+  padding: 0.75rem;
+  border-right: 1px solid var(--muted);
+  text-align: center;
+}
+
+.stat-pane:last-child {
+  border-right: none;
+}
+
+.stat-pane-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+  text-shadow: var(--glow);
+}
+
+.stat-pane-value.amber {
+  color: var(--secondary);
+  text-shadow: var(--glow-amber);
+}
+
+.stat-pane-value.red {
+  color: var(--error);
+  text-shadow: var(--glow-red);
+}
+
+.stat-pane-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.25rem;
+}
+
+/* ── TABLE ─────────────────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 960px;
+  font-size: 0.75rem;
+}
+
+thead th {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--muted);
+  background: var(--muted-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid rgba(31, 82, 31, 0.3);
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover td {
+  background: rgba(51, 255, 0, 0.02);
+}
+
+tbody tr {
+  transition: background 0.15s;
+}
+
+/* status badges */
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.stat-badge.available {
+  color: var(--primary);
+  border-color: var(--muted);
+  background: rgba(51, 255, 0, 0.05);
+}
+
+.stat-badge.flag {
+  color: var(--secondary);
+  border-color: var(--amber-dim);
+  background: rgba(255, 176, 0, 0.05);
+}
+
+.stat-badge.paid {
+  color: var(--error);
+  border-color: var(--red-dim);
+  background: rgba(255, 51, 51, 0.05);
+}
+
+.stat-badge.checking {
+  color: var(--muted);
+  border-color: var(--muted);
+  background: transparent;
+}
+
+/* pulse dots */
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.pulse-dot.green { background: var(--primary); box-shadow: var(--glow); }
+.pulse-dot.yellow { background: var(--secondary); }
+.pulse-dot.red { background: var(--error); }
+.pulse-dot.gray { background: var(--muted); }
+.pulse-dot.pulse { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+/* model name */
+.model-cell-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.model-cell-org {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.model-cell-models {
+  margin-top: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.model-tag {
+  font-size: 0.6rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: var(--muted);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-cell-notes {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* limits pills */
+.limits-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.limit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.6rem;
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: var(--muted);
+}
+
+.limit-pill-key {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* latency */
+.latency {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+}
+.latency.good { color: var(--primary); }
+.latency.mid { color: var(--secondary); }
+.latency.bad { color: var(--error); }
+.latency.na { color: var(--muted); }
+
+/* cc badge */
+.cc-badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.cc-badge.yes {
+  border: 1px solid var(--red-dim);
+  color: var(--error);
+}
+.cc-badge.no {
+  border: 1px solid var(--muted);
+  color: var(--primary);
+}
+
+/* signup link */
+.signup-link {
+  font-size: 0.65rem;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+.signup-link:hover {
+  color: var(--primary);
+  text-shadow: var(--glow);
+}
+
+/* ── STATUS BAR (BOTTOM) ───────────────────────────────────────── */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--muted);
+  font-size: 0.7rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bottom-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bottom-bar .prompt-cursor {
+  height: 1em;
+  width: 8px;
+}
+
+/* ── OVERLAY/LOADING ───────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.88);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+.overlay-text {
+  color: var(--primary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: var(--glow);
+}
+
+.overlay-spinner {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.overlay-spinner span {
+  width: 4px;
+  height: 20px;
+  background: var(--primary);
+  animation: blink-block 1s step-end infinite;
+  box-shadow: var(--glow);
+}
+
+.overlay-spinner span:nth-child(2) { animation-delay: 0.15s; }
+.overlay-spinner span:nth-child(3) { animation-delay: 0.3s; }
+.overlay-spinner span:nth-child(4) { animation-delay: 0.45s; }
+.overlay-spinner span:nth-child(5) { animation-delay: 0.6s; }
+
+/* ── TOAST ─────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--bg);
+  border: 1px solid var(--muted);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 600;
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── LEGEND ────────────────────────────────────────────────────── */
+.legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 1rem;
+  border: 1px solid var(--muted);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-right: 1px solid var(--muted);
+}
+
+.legend-item:last-child {
+  border-right: none;
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+}
+.legend-dot.green { background: var(--primary); }
+.legend-dot.yellow { background: var(--secondary); }
+.legend-dot.red { background: var(--error); }
+
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .terminal {
+    padding: 0.75rem;
+  }
+
+  .ascii-art {
+    font-size: 0.3rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-tagline-text {
+    white-space: normal;
+    border-right: none;
+    animation: none;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-pane:nth-child(2) {
+    border-right: none;
+  }
+
+  .command-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrap {
+    min-width: auto;
+  }
+
+  .status-bar {
+    font-size: 0.7rem;
+  }
+
+  .bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legend-bar {
+    flex-direction: column;
+  }
+
+  .legend-item {
+    border-right: none;
+    border-bottom: 1px solid var(--muted);
+  }
+
+  .legend-item:last-child {
+    border-bottom: none;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-btn-term {
+    flex: 1;
+    text-align: center;
+    font-size: 0.6rem;
+    padding: 0.3rem 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 12px; }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ascii-art {
+    font-size: 0.22rem;
+  }
+}
+
+/* ── PROGRESS BAR UTILITY ──────────────────────────────────────── */
+.progress-bar {
+  display: flex;
+  height: 14px;
+  border: 1px solid var(--muted);
+  background: transparent;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+.progress-bar-fill.green { background: var(--primary); }
+.progress-bar-fill.yellow { background: var(--secondary); }
+.progress-bar-fill.red { background: var(--error); }
+
+/* ── EMPTY STATE ───────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ CRT SCANLINES ═══ -->
+<div class="scanlines"></div>
+
+<!-- ═══ LOADING OVERLAY ═══ -->
+<div class="overlay" id="overlay">
+  <div class="overlay-text" id="overlay-txt">SCANNING ENDPOINTS...</div>
+  <div class="overlay-spinner">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ TERMINAL ═══ -->
+<div class="terminal">
+
+  <!-- ── STATUS BAR ── -->
+  <div class="status-bar">
+    <div class="status-bar-left">
+      <span class="prompt">
+        <span class="prompt-user">hunter</span>
+        <span class="prompt-at">@</span>
+        <span class="prompt-host">llm-hunter</span>
+        <span class="prompt-path">:~$ </span>
+        <span class="prompt-cursor"></span>
+      </span>
+      <span style="color:var(--muted);font-size:0.7rem">v2.0</span>
+    </div>
+    <div class="status-bar-right">
+      <span id="last-ts" style="color:var(--muted);font-size:0.7rem">[ WARNING ] NO DATA</span>
+      <span id="s-ts" style="color:var(--muted);font-size:0.7rem"></span>
+    </div>
+  </div>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="ascii-art">
+
+    </div>
+    <div class="ascii-art">   ██╗  ██╗██╗   ██╗███╗   ██╗████████╗███████╗██████╗</div>
+    <div class="ascii-art">   ██║  ██║██║   ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗</div>
+    <div class="ascii-art">   ███████║██║   ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝</div>
+    <div class="ascii-art">   ██╔══██║██║   ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗</div>
+    <div class="ascii-art">   ██║  ██║╚██████╔╝██║ ╚████║   ██║   ███████╗██║  ██║</div>
+    <div class="ascii-art">   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝</div>
+    <div class="ascii-art" style="color:var(--muted);font-size:0.45rem">
+                 _      _                       _                          _
+       /\/\     | |    | |                     | |                        | |
+      /    \  _ | |    | |_   _ __   _ __ ___  | |__    ___  _ __   _   _ | |_
+     / /\/\ \| || |    | | | | '_ \ | '_ ` _ \ | '_ \  / _ \| '_ \ | | | || __|
+     \/    \/| || |    | | |_| | | || | | | | || | | ||  __/| | | || |_| || |_
+              |_||_|     \__,_|_| |_||_| |_| |_||_| |_| \___||_| |_| \__,_| \__|
+    </div>
+    <div class="hero-tagline">
+      <span style="color:var(--primary);font-weight:700">$</span>
+      <span class="hero-tagline-text" id="typing-text">REAL-TIME LLM PROVIDER MONITOR v2.0</span>
+    </div>
+    <div class="hero-sub">
+      <span>&gt;</span> TRACKING <span id="h-total">23</span> PROVIDERS &mdash; <span id="h-free-count">13</span> FREE / <span id="h-paid-count">6</span> PAID &mdash; <span>0</span> NO CC REQUIRED
+    </div>
+    <div class="hero-stats-row">
+      <div class="hero-stat">
+        <span class="pulse-dot green pulse" style="width:6px;height:6px"></span>
+        <span class="hero-stat-value" id="h-stat-free">0</span>
+        <span class="hero-stat-label">FREE &amp; ACTIVE</span>
+      </div>
+      <div class="hero-stat">
+        <span class="pulse-dot yellow" style="width:6px;height:6px"></span>
+        <span class="hero-stat-value" style="color:var(--secondary)" id="h-stat-flag">0</span>
+        <span class="hero-stat-label">DEGRADED</span>
+      </div>
+      <div class="hero-stat">
+        <span class="pulse-dot red" style="width:6px;height:6px"></span>
+        <span class="hero-stat-value" style="color:var(--error)" id="h-stat-paid">0</span>
+        <span class="hero-stat-label">PAID / OFFLINE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS PANES ── -->
+  <div class="stats-grid">
+    <div class="stat-pane">
+      <div class="stat-pane-value" id="s-total">--</div>
+      <div class="stat-pane-label">TOTAL PROVIDERS</div>
+    </div>
+    <div class="stat-pane">
+      <div class="stat-pane-value" id="s-free">--</div>
+      <div class="stat-pane-label">[OK] FREE &amp; ACTIVE</div>
+    </div>
+    <div class="stat-pane">
+      <div class="stat-pane-value amber" id="s-flag">--</div>
+      <div class="stat-pane-label">[WARN] DEGRADED</div>
+    </div>
+    <div class="stat-pane">
+      <div class="stat-pane-value red" id="s-paid">--</div>
+      <div class="stat-pane-label">[ERR] PAID / OFFLINE</div>
+    </div>
+    <div class="stat-pane">
+      <div class="stat-pane-value" id="s-nocc" style="color:var(--secondary);text-shadow:var(--glow-amber)">--</div>
+      <div class="stat-pane-label">NO CREDIT CARD</div>
+    </div>
+  </div>
+
+  <!-- ── LEGEND ── -->
+  <div class="legend-bar">
+    <div class="legend-item">
+      <span class="legend-dot green"></span>
+      FREE &amp; ACTIVE &mdash; ENDPOINT OK, WITHIN LIMITS
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot yellow"></span>
+      YELLOW FLAG &mdash; HIGH LATENCY / STRICT LIMITS
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot red"></span>
+      PAID / UNAVAILABLE &mdash; REQUIRES CC OR DOWN
+    </div>
+  </div>
+
+  <!-- ── COMMAND BAR ── -->
+  <div class="command-bar">
+    <span class="command-bar-prompt">hunter@scan:~$</span>
+    <div class="search-wrap">
+      <span class="search-prompt">grep --filter=</span>
+      <input class="search-input" id="search" placeholder="name, org, or model..." oninput="render()" autocomplete="off" spellcheck="false">
+      <span class="search-cursor"></span>
+    </div>
+    <div class="filter-group">
+      <button class="filter-btn-term active-all" id="f-all" onclick="setFilter('all',this)">ALL</button>
+      <button class="filter-btn-term" id="f-free" onclick="setFilter('free',this)">[OK] FREE</button>
+      <button class="filter-btn-term" id="f-flag" onclick="setFilter('flag',this)">[WARN] DEGRADED</button>
+      <button class="filter-btn-term" id="f-paid" onclick="setFilter('paid',this)">[ERR] PAID</button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD WINDOW ── -->
+  <div class="window">
+    <div class="window-titlebar">
+      <div class="window-titlebar-left">
+        <span class="window-titlebar-dot green"></span>
+        <span>PROVIDER MONITOR :: LIVE FEED</span>
+      </div>
+      <div>
+        <button class="btn-term" id="auto-btn" onclick="toggleAutoRefresh()">
+          <span id="auto-icon">~</span>
+          <span id="auto-label">AUTO</span>
+        </button>
+        <select class="sel-term" id="auto-interval" onchange="updateAutoInterval()" style="margin-left:0.25rem">
+          <option value="5">5M</option>
+          <option value="10" selected>10M</option>
+          <option value="15">15M</option>
+          <option value="30">30M</option>
+        </select>
+        <span style="margin:0 0.5rem;color:var(--muted);font-size:0.7rem" id="auto-countdown"></span>
+        <button class="btn-term primary" id="scrape-btn" onclick="runScrape()" disabled>
+          <span>&#8635;</span> SCAN
+        </button>
+      </div>
+    </div>
+    <div class="window-body" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PROVIDER / MODEL</th>
+              <th>STATUS</th>
+              <th>LATENCY</th>
+              <th>RATE LIMITS</th>
+              <th>CTX</th>
+              <th>CARD</th>
+              <th>SIGNUP</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="7" class="empty-state">
+              LOADING DATA FROM <code>agents.json</code>...<br>
+              <span style="font-size:0.65rem;color:var(--muted)">RUN <code>python serve.py</code> TO SERVE DATA</span>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM BAR ── -->
+  <div class="bottom-bar">
+    <div class="bottom-bar-left">
+      <span style="color:var(--primary)">$</span>
+      <span>tail -f /var/log/hunter.log 2>&amp;1</span>
+      <span class="prompt-cursor"></span>
+    </div>
+    <div>
+      <span id="ts-right"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  FREE LLM HUNTER — CORE ENGINE
+// ═══════════════════════════════════════════════════════════════════════
+
+let AGENTS = [];
+
+let results = {};
+let activeFilter = 'all';
+let isScraping = false;
+let autoRefreshEnabled = false;
+let autoRefreshInterval = null;
+let autoRefreshCountdown = null;
+let autoRefreshSecondsLeft = 0;
+
+// ── LOAD AGENTS ──────────────────────────────────────────────────────
+async function loadAgents() {
+  try {
+    const resp = await fetch('./agents.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    AGENTS = await resp.json();
+    document.getElementById('scrape-btn').disabled = false;
+    document.getElementById('h-total').textContent = AGENTS.length;
+    document.getElementById('h-free-count').textContent = AGENTS.filter(a => a.type === 'free').length;
+    document.getElementById('h-paid-count').textContent = AGENTS.filter(a => a.type === 'paid').length;
+    updateStats();
+    render();
+    showToast('[ OK ] LOADED ' + AGENTS.length + ' PROVIDERS');
+  } catch (e) {
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="7" class="empty-state">' +
+      '[ ERR ] FAILED TO LOAD <code>agents.json</code><br>' +
+      '<span style="font-size:0.65rem;color:var(--muted)">' + e.message + '</span>' +
+      '</td></tr>';
+  }
+}
+
+// ── PING ENDPOINT ────────────────────────────────────────────────────
+async function pingAgent(agent) {
+  const start = performance.now();
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(agent.endpoint, {
+      method: 'GET',
+      signal: ctrl.signal,
+      mode: 'no-cors',
+    });
+    clearTimeout(timer);
+    const ms = Math.round(performance.now() - start);
+    const status = ms > 3000 ? 'flag' : ms > 1500 ? 'flag' : 'available';
+    return { status, latency_ms: ms, http_code: res.status || 200, error: null };
+  } catch (e) {
+    const ms = Math.round(performance.now() - start);
+    if (e.name === 'AbortError') return { status: 'flag', latency_ms: ms, http_code: null, error: 'TIMEOUT >8S' };
+    if (e.message && e.message.includes('fetch')) {
+      return { status: 'available', latency_ms: ms, http_code: null, error: null };
+    }
+    return { status: 'unavailable', latency_ms: ms, http_code: null, error: e.message?.slice(0, 50) };
+  }
+}
+
+// ── RUN SCRAPE ───────────────────────────────────────────────────────
+async function runScrape(silent) {
+  if (isScraping || AGENTS.length === 0) return;
+  isScraping = true;
+  const btn = document.getElementById('scrape-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>&#8635;</span> SCANNING...';
+  if (!silent) showOverlay('SCANNING ' + AGENTS.length + ' ENDPOINTS...');
+
+  results = {};
+  render();
+
+  const promises = AGENTS.map(async (agent) => {
+    if (agent.type === 'paid') {
+      results[agent.id] = { status: 'paid', latency_ms: null, http_code: null, error: null };
+      render();
+      return;
+    }
+    const r = await pingAgent(agent);
+    results[agent.id] = r;
+    render();
+  });
+
+  await Promise.allSettled(promises);
+
+  hideOverlay();
+  btn.disabled = false;
+  btn.innerHTML = '<span>&#8635;</span> SCAN';
+  isScraping = false;
+
+  const now = new Date();
+  document.getElementById('last-ts').textContent = '[ OK ] ' + now.toLocaleTimeString();
+  document.getElementById('ts-right').textContent = 'LAST SCAN: ' + now.toLocaleString();
+  if (!silent) showToast('[ OK ] SCAN COMPLETE — ' + AGENTS.length + ' PROVIDERS CHECKED');
+  updateStats();
+  if (autoRefreshEnabled) resetCountdown();
+}
+
+// ── SET FILTER ───────────────────────────────────────────────────────
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn-term').forEach(b => {
+    b.className = 'filter-btn-term';
+  });
+  const cls = f === 'all' ? 'all' : f === 'free' ? 'free' : f === 'flag' ? 'flag' : 'paid';
+  el.classList.add('active-' + cls);
+  render();
+}
+
+// ── RENDER TABLE ─────────────────────────────────────────────────────
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = AGENTS.filter(a => {
+    const r = results[a.id];
+    let matchFilter = true;
+    if (activeFilter === 'free') matchFilter = a.type === 'free' && (!r || r.status !== 'flag');
+    else if (activeFilter === 'flag') matchFilter = r && r.status === 'flag';
+    else if (activeFilter === 'paid') matchFilter = a.type === 'paid';
+    const matchSearch = !q || a.name.toLowerCase().includes(q)
+      || a.org.toLowerCase().includes(q)
+      || a.models.some(m => m.toLowerCase().includes(q));
+    return matchFilter && matchSearch;
+  });
+
+  const tbody = document.getElementById('tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">[ WARN ] NO MATCHING PROVIDERS</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(agent => {
+    const r = results[agent.id];
+    const isPaid = agent.type === 'paid';
+
+    // status badge
+    let badgeHtml;
+    if (!r) {
+      badgeHtml = '<span class="stat-badge checking"><span class="pulse-dot gray pulse"></span> WAITING...</span>';
+    } else if (isPaid) {
+      badgeHtml = '<span class="stat-badge paid"><span class="pulse-dot red"></span> [ERR] PAID</span>';
+    } else if (r.status === 'available') {
+      badgeHtml = '<span class="stat-badge available"><span class="pulse-dot green pulse"></span> [OK] ACTIVE</span>';
+    } else if (r.status === 'flag') {
+      badgeHtml = '<span class="stat-badge flag"><span class="pulse-dot yellow"></span> [WARN] SLOW</span>';
+    } else {
+      badgeHtml = '<span class="stat-badge paid"><span class="pulse-dot red"></span> [ERR] DOWN</span>';
+    }
+
+    // error tooltip
+    if (r && r.error) {
+      badgeHtml += '<div style="font-size:0.6rem;color:var(--error);margin-top:0.2rem">' + r.error + '</div>';
+    }
+
+    // latency
+    let latHtml = '<span class="latency na">--</span>';
+    if (r && r.latency_ms != null) {
+      const ms = r.latency_ms;
+      const cls = ms < 600 ? 'good' : ms < 2000 ? 'mid' : 'bad';
+      latHtml = '<span class="latency ' + cls + '">' + ms.toLocaleString() + ' ms</span>';
+    }
+
+    // limits
+    const L = agent.limits;
+    const lims = [];
+    if (L.rpm)  lims.push('<span class="limit-pill"><span class="limit-pill-key">RPM</span>' + L.rpm.toLocaleString() + '</span>');
+    if (L.rpd)  lims.push('<span class="limit-pill"><span class="limit-pill-key">RPD</span>' + L.rpd.toLocaleString() + '</span>');
+    if (L.tpm)  lims.push('<span class="limit-pill"><span class="limit-pill-key">TPM</span>' + (L.tpm / 1000).toFixed(0) + 'K</span>');
+    if (L.tpd)  lims.push('<span class="limit-pill"><span class="limit-pill-key">TPD</span>' + (L.tpd / 1000000).toFixed(L.tpd >= 1e9 ? 0 : 1) + (L.tpd >= 1e9 ? 'B' : 'M') + '</span>');
+    const limHtml = lims.length ? '<div class="limits-row">' + lims.join('') + '</div>' : '<span style="color:var(--muted);font-size:0.6rem">--</span>';
+
+    // models
+    const modelsHtml = agent.models.slice(0, 3).map(m =>
+      '<span class="model-tag">' + (m.length > 30 ? m.slice(0, 30) + '...' : m) + '</span>'
+    ).join('');
+
+    // CC badge
+    const ccHtml = agent.requires_card
+      ? '<span class="cc-badge yes">[!] REQUIRED</span>'
+      : '<span class="cc-badge no">[OK] NONE</span>';
+
+    return '<tr>' +
+      '<td>' +
+        '<div class="model-cell-name">' + agent.name + '</div>' +
+        '<div class="model-cell-org">' + agent.org + '</div>' +
+        '<div class="model-cell-models">' + modelsHtml + '</div>' +
+        '<div class="model-cell-notes">' + agent.notes + '</div>' +
+      '</td>' +
+      '<td>' + badgeHtml + '</td>' +
+      '<td>' + latHtml + '</td>' +
+      '<td>' + limHtml + '</td>' +
+      '<td style="color:var(--muted);font-size:0.75rem">' + agent.limits.context_k + 'K</td>' +
+      '<td>' + ccHtml + '</td>' +
+      '<td><a href="' + agent.signup_url + '" target="_blank" class="signup-link">SIGNUP &rarr;</a></td>' +
+    '</tr>';
+  }).join('');
+
+  updateStats();
+}
+
+// ── UPDATE STATS ─────────────────────────────────────────────────────
+function updateStats() {
+  const total = AGENTS.length;
+  const free = AGENTS.filter(a => a.type === 'free' && results[a.id] && results[a.id].status === 'available').length;
+  const flag = AGENTS.filter(a => results[a.id] && results[a.id].status === 'flag').length;
+  const paid = AGENTS.filter(a => a.type === 'paid').length;
+  const nocc = AGENTS.filter(a => !a.requires_card).length;
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-free').textContent = free;
+  document.getElementById('s-flag').textContent = flag;
+  document.getElementById('s-paid').textContent = paid;
+  document.getElementById('s-nocc').textContent = nocc;
+
+  document.getElementById('h-stat-free').textContent = free;
+  document.getElementById('h-stat-flag').textContent = flag;
+  document.getElementById('h-stat-paid').textContent = paid;
+}
+
+// ── UI HELPERS ───────────────────────────────────────────────────────
+function showOverlay(txt) {
+  document.getElementById('overlay-txt').textContent = txt;
+  document.getElementById('overlay').classList.add('active');
+}
+function hideOverlay() {
+  document.getElementById('overlay').classList.remove('active');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+// ── AUTO-REFRESH ─────────────────────────────────────────────────────
+function toggleAutoRefresh() {
+  autoRefreshEnabled = !autoRefreshEnabled;
+  const btn = document.getElementById('auto-btn');
+  const icon = document.getElementById('auto-icon');
+  const label = document.getElementById('auto-label');
+
+  if (autoRefreshEnabled) {
+    btn.classList.add('active');
+    icon.textContent = '*';
+    label.textContent = 'AUTO ON';
+    resetCountdown();
+    showToast('[ OK ] AUTO-REFRESH ENABLED — EVERY ' + document.getElementById('auto-interval').value + ' MIN');
+  } else {
+    btn.classList.remove('active');
+    icon.textContent = '~';
+    label.textContent = 'AUTO';
+    clearInterval(autoRefreshInterval);
+    clearInterval(autoRefreshCountdown);
+    autoRefreshInterval = null;
+    autoRefreshCountdown = null;
+    document.getElementById('auto-countdown').textContent = '';
+    showToast('[ INFO ] AUTO-REFRESH DISABLED');
+  }
+}
+
+function updateAutoInterval() {
+  if (autoRefreshEnabled) resetCountdown();
+}
+
+function resetCountdown() {
+  clearInterval(autoRefreshInterval);
+  clearInterval(autoRefreshCountdown);
+
+  const minutes = parseInt(document.getElementById('auto-interval').value);
+  autoRefreshSecondsLeft = minutes * 60;
+
+  autoRefreshCountdown = setInterval(function() {
+    if (autoRefreshSecondsLeft <= 0) return;
+    autoRefreshSecondsLeft--;
+    var m = Math.floor(autoRefreshSecondsLeft / 60);
+    var s = autoRefreshSecondsLeft % 60;
+    document.getElementById('auto-countdown').textContent =
+      '[' + m + ':' + String(s).padStart(2, '0') + ']';
+  }, 1000);
+
+  autoRefreshInterval = setInterval(function() {
+    runScrape(true);
+  }, minutes * 60 * 1000);
+
+  var m = Math.floor(autoRefreshSecondsLeft / 60);
+  var s = autoRefreshSecondsLeft % 60;
+  document.getElementById('auto-countdown').textContent =
+    '[' + m + ':' + String(s).padStart(2, '0') + ']';
+}
+
+// ── TYPEWRITER EFFECT ───────────────────────────────────────────────
+function typeWriter() {
+  var el = document.getElementById('typing-text');
+  var text = 'REAL-TIME LLM PROVIDER MONITOR v2.0';
+  el.textContent = '';
+  el.style.borderRight = '2px solid var(--primary)';
+  var i = 0;
+  function type() {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, 40 + Math.random() * 30);
+    }
+  }
+  type();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+loadAgents();
+setTimeout(typeWriter, 300);
+</script>
+</body>
+</html>
